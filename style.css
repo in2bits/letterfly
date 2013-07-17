@@ -1,5 +1,5 @@
 .letterfly {
-    opacity: 0;
+    /*opacity: 0;*/
     transform: translateX(800px);
     transition: transform 2s;
     left: 20px;

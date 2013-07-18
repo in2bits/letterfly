@@ -54,6 +54,38 @@
         this.durationSeconds = durationSeconds;
         this.index = 0;
 
+        var getBinaryByteString = function(bytes) {
+            var bits;
+            var byteStrings = [];
+            var getBits = function (b) {
+                var bits = [];
+                var bit = false;
+                var val;
+                for (var i = 7; i >= 0; i--) {
+                    val = Math.pow(2, i);
+                    bit = (b >= val);
+                    if (bit) {
+                        b -= val;
+                    }
+                    bits[7 - i] = bit ? 1 : 0;
+                }
+                return bits;
+            };
+            for (var i = 0; i < bytes.length; i++) {
+                bits = getBits(bytes[i]);
+                byteStrings.push(bits.join(''));
+            }
+            return byteStrings.join(' ');
+        };
+
+        var getHexByteString = function (bytes) {
+
+        };
+
+        var getHex = function(b) {
+
+        };
+
         var getBytes = function (str) {
             var bytes = [];
             var c;
@@ -76,15 +108,16 @@
         };
 
         this.start = function () {
-            //this.el.textContent = 'boo';
+            this.originalBytes = getBytes(this.originalText);
+            this.el.textContent = getBinaryByteString(this.originalBytes);
             this.startTime = new Date();
-            setTimeout(updateText.bind(this), 100);
+            //setTimeout(updateText.bind(this), 100);
         };
     }
 
     function letterflown(args) {
         var el = args.target;
-        removeClass(el, 'flying');
+        //removeClass(el, 'flying');
         console.log(el.nodeName + " letterflown");
     }
 

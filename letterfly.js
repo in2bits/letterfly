@@ -49,7 +49,7 @@
 
     function Animation(el, durationSeconds){
         this.el = el;
-        this.originalText = el.textContent;
+        this.originalText = el.getAttribute('data-letterfly');
         this.text = this.originalText;
         this.durationSeconds = durationSeconds;
         this.index = 0;
@@ -79,11 +79,29 @@
         };
 
         var getHexByteString = function (bytes) {
-
+            var str = '';
+            for (var i = 0; i < bytes.length; i++){
+                if (i > 0) {
+                    str += ' ';
+                }
+                str += getHex(bytes[i]);
+            }
+            return str;
         };
 
-        var getHex = function(b) {
+        var hexChars = '0123456789ABCDEF';
 
+        var getHex = function(b) {
+            var hex = '';
+
+            var i = Math.floor(b / 16);
+            var hexChar = hexChars[i];
+            hex += hexChar;
+
+            b -= (16 * i);
+            hexChar = hexChars[b];
+            hex += hexChar;
+            return hex;
         };
 
         var getBytes = function (str) {
@@ -98,37 +116,49 @@
 
         var updateText = function () {
             var index = ++this.index;
-            var clearString = this.originalText.substr(index);
-            var byteString = this.originalText.substr(0, index);
-            var bytes = getBytes(byteString);
-            this.el.textContent = clearString + bytes.join('');
-            if (index < (this.originalText.length - 1)) {
-                setTimeout(updateText.bind(this), 1000);
+            var plain, hex, bytes, hexText, bytesText;
+            var content = '';
+            if (index < this.originalText.length) {
+                hexText = this.originalText.substr(0, index);
+                bytesText = this.originalText.substr(index);
+                hex = getHexByteString(getBytes(hexText));
+                bytes = getBinaryByteString(getBytes(bytesText));
+                content = hex + ' ' + bytes;
+            } else {
+                index -= this.originalText.length;
+                plain = this.originalText.substr(0, index);
+                hexText = this.originalText.substr(index);
+                hex = getHexByteString(getBytes(hexText));
+                content = plain + ' ' + hex;
+            }
+            this.el.textContent = content;
+            if (index < (2 * this.originalText.length)) {
+                setTimeout(updateText.bind(this), 50);
             }
         };
+
+        function letterflown(args) {
+            var el = args.target;
+            //removeClass(el, 'letterflying');
+            setTimeout(updateText.bind(this), 50);
+            console.log(el.nodeName + " letterflown");
+        }
 
         this.start = function () {
             this.originalBytes = getBytes(this.originalText);
             this.el.textContent = getBinaryByteString(this.originalBytes);
             this.startTime = new Date();
-            //setTimeout(updateText.bind(this), 100);
+            el.addEventListener('transitionend', letterflown.bind(this), true);
+            addClass(el, 'letterflying');
+            console.log(el.nodeName + " letterflying");
         };
-    }
-
-    function letterflown(args) {
-        var el = args.target;
-        //removeClass(el, 'flying');
-        console.log(el.nodeName + " letterflown");
     }
 
     var lfElements = document.querySelectorAll(".letterfly");
     var el, i;
     for (i = 0; i < lfElements.length; i++) {
         el = lfElements[i];
-        el.addEventListener('transitionend', letterflown, true);
-        addClass(el, 'flying');
         var animation = new Animation(el, 2);
         animation.start();
-        console.log(el.nodeName + " letterflying");
     }
 })();
